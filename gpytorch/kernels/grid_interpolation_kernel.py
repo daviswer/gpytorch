@@ -20,11 +20,11 @@ class GridInterpolationKernel(Kernel):
 
         if d > 1:
             grid_size = self.grid_size
-            k_UUs = Variable(torch.zeros(d, grid_size))
-            Js1 = torch.zeros(d, len(x1.data), 4).long()
-            Cs1 = torch.zeros(d, len(x1.data), 4)
-            Js2 = torch.zeros(d, len(x1.data), 4).long()
-            Cs2 = torch.zeros(d, len(x1.data), 4)
+            k_UUs = Variable(x1.data.new(d, grid_size).zero_())
+            Js1 = x1.data.new(d, len(x1.data), 4).zero_().long()
+            Cs1 = x1.data.new(d, len(x1.data), 4).zero_()
+            Js2 = x1.data.new(d, len(x1.data), 4).zero_().long()
+            Cs2 = x1.data.new(d, len(x1.data), 4).zero_()
             for i in range(d):
                 both_min = torch.min(x1.min(0)[0].data, x2.min(0)[0].data)[i]
                 both_max = torch.max(x1.max(0)[0].data, x2.max(0)[0].data)[i]

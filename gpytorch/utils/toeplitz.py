@@ -21,7 +21,9 @@ def index_coef_to_sparse(index_matrix, value_matrix, row_length):
     """
     num_target_points, num_coefficients = value_matrix.size()
 
-    row_tensor = torch.arange(0, num_target_points).unsqueeze(1)
+    row_tensor = value_matrix.new(num_target_points)
+    torch.arange(0, num_target_points, out=row_tensor)
+    row_tensor.unsqueeze_(1)
     row_tensor = row_tensor.repeat(1, num_coefficients).type_as(index_matrix)
     index_tensor = torch.cat([row_tensor.view(1, -1), index_matrix.view(1, -1)], 0)
     value_tensor = value_matrix.view(-1)
@@ -35,7 +37,10 @@ def index_coef_to_sparse(index_matrix, value_matrix, row_length):
         index_tensor = index_tensor.resize_(2, 1).zero_()
         value_tensor = value_tensor.resize_(1).zero_()
 
-    res = torch.sparse.FloatTensor(index_tensor, value_tensor, torch.Size([num_target_points, row_length]))
+    if index_tensor.is_cuda:
+        res = torch.cuda.sparse.FloatTensor(index_tensor, value_tensor, torch.Size([num_target_points, row_length]))
+    else:
+        res = torch.sparse.FloatTensor(index_tensor, value_tensor, torch.Size([num_target_points, row_length]))
     return res
 
 
@@ -68,7 +73,7 @@ def toeplitz(toeplitz_column, toeplitz_row):
     if len(toeplitz_column) == 1:
         return toeplitz_column.view(1, 1)
 
-    res = torch.Tensor(len(toeplitz_column), len(toeplitz_column)).type_as(toeplitz_column)
+    res = toeplitz_column.new(len(toeplitz_column), len(toeplitz_column))
     for i, val in enumerate(toeplitz_column):
         for j in range(len(toeplitz_column) - i):
             res[j + i, j] = val
@@ -161,16 +166,16 @@ def toeplitz_matmul(toeplitz_column, toeplitz_row, tensor):
         orig_size = len(toeplitz_column)
         r_reverse = utils.reverse(toeplitz_row[1:])
 
-        c_r_rev = torch.zeros(orig_size + len(r_reverse))
+        c_r_rev = toeplitz_column.new(orig_size + len(r_reverse)).zero_()
         c_r_rev[:orig_size] = toeplitz_column
         c_r_rev[orig_size:] = r_reverse
 
-        temp_tensor = torch.zeros(2 * orig_size - 1, num_rhs)
+        temp_tensor = toeplitz_column.new(2 * orig_size - 1, num_rhs).zero_()
         temp_tensor[:orig_size, :] = tensor
 
         fft_M = fft.fft1(temp_tensor.t().contiguous())
         fft_c = fft.fft1(c_r_rev).expand_as(fft_M)
-        fft_product = torch.zeros(fft_M.size())
+        fft_product = toeplitz_column.new(fft_M.size()).zero_()
 
         fft_product[:, :, 0].addcmul_(fft_c[:, :, 0], fft_M[:, :, 0])
         fft_product[:, :, 0].addcmul_(-1, fft_c[:, :, 1], fft_M[:, :, 1])
@@ -266,9 +271,9 @@ def sym_toeplitz_derivative_quadratic_form(left_vectors, right_vectors):
         left_vectors = left_vectors.unsqueeze(0)
         right_vectors = right_vectors.unsqueeze(0)
     s, m = left_vectors.size()
-    dT_dc_col = torch.zeros(m)
+    dT_dc_col = left_vectors.new(m).zero_()
 
-    res = torch.zeros(m)
+    res = left_vectors.new(m).zero_()
 
     left_vectors.contiguous()
     right_vectors.contiguous()

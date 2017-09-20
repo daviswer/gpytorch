@@ -35,8 +35,8 @@ class StochasticLQ(object):
         num_iters = min(self.max_iter, n)
 
         Q = self.cls(n, num_iters).zero_()
-        alpha = torch.zeros(num_iters)
-        beta = torch.zeros(num_iters)
+        alpha = self.cls(num_iters).zero_()
+        beta = self.cls(num_iters).zero_()
 
         b = b / torch.norm(b)
         Q[:, 0] = b
