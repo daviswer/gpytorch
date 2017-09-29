@@ -36,7 +36,7 @@ int fft1_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
 }
 
 
-int fft2_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
+int fft2_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
 {
   THArgCheck(THCudaTensor_nDimension(state, input) == 3,  2, "Input tensor must be 2 dimensional (nPlanes x n x d)");
   THArgCheck(THCudaTensor_isContiguous(state, input), 2, "Input tensor must be contiguous");
