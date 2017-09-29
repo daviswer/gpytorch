@@ -35,7 +35,6 @@ int fft1_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   return 0;
 }
 
-
 int fft2_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
 {
   THArgCheck(THCudaTensor_nDimension(state, input) == 3,  2, "Input tensor must be 2 dimensional (nPlanes x n x d)");
@@ -66,7 +65,6 @@ int fft2_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   
   return 0;
 }
-
   
 int fft1_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
 {
@@ -97,7 +95,36 @@ int fft1_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
   return 0;
 }
   
+int fft2_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
+{
+  THArgCheck(THCudaTensor_nDimension(state, output) == 3,  2, "Input tensor must be 2 dimensional (nPlanes x n x d)");
+  THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Input tensor must be contiguous");
+  int nPlanes = (int) THCudaTensor_size(state, output, 0);
+  int n = (int) THCudaTensor_size(state, output, 1);
+  int d = (int) THCudaTensor_size(state, output, 2);
+  int size[2] = {n,d};
   
+  THArgCheck(THCudaTensor_nDimension(state, input) == 4, 2, "Output tensor must be 4 dimensional (nPlanes x n x d x 2)");
+  THArgCheck(THCudaTensor_isContiguous(state, input), 2, "Output tensor must be contiguous");
+  THArgCheck(THCudaTensor_size(state, input, 0) == nPlanes, 2, "The first dimension of the output tensor should be nPlanes");
+  THArgCheck(THCudaTensor_size(state, input, 1) == (n / 2) + 1, 2, "The second dimension of the output tensor should be (n/2 + 1)");
+  THArgCheck(THCudaTensor_size(state, input, 2) == (d / 2) + 1, 2, "The third dimension of the output tensor should be (d/2 + 1)");
+  THArgCheck(THCudaTensor_size(state, input, 3) == 2, 2, "The last dimension of the output tensor should be 2");
+  
+  // raw pointers
+  float *input_data = THCudaTensor_data(NULL, input);
+  cuComplex *output_data = (cuComplex*) THCudaTensor_data(NULL, output);
+  
+  // execute FFT
+  cufftHandle plan;
+  cufftPlanMany(&plan, 2, size, NULL, 1, 0, NULL, 1, 0, CUFFT_C2R, nPlanes);
+  cufftExecC2R(plan, (cufftReal*) input_data, (cufftComplex*) output_data);
+  
+  //clean up
+  cufftDestroy(plan);
+  
+  return 0;
+}
   
   
   
