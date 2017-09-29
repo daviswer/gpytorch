@@ -62,3 +62,27 @@ def ifft1(input, size=None):
         libfft.fft1_c2r(input.float(), output)
     output.div_(d)
     return output.view(size).type(orig_type)
+
+def ifft2(input, size=None):
+    # [..., n, d, 2]
+    orig_type = type(input)
+
+    if not size:
+        size = list(input.size())[:-1]
+        d = (size[-1] - 1) * 2
+        size[-1] = d
+        n = (size[-2] -1) * 2
+        size[-2] = n
+    else:
+        d = size[-1]
+        n = size[-2]
+    input = input.view(-1, *input.size()[-3:])
+
+    output = input.new().resize_(input.size(0), n, d)
+    if input.is_cuda:
+        libfft.fft2_c2r_cuda(input, output)
+    else:
+        assert False
+    output.div_(d)
+    output.div_(n)
+    return output.view(size).type(orig_type)
