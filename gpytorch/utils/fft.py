@@ -7,8 +7,8 @@ def fft1(input):
     orig_type = type(input)
 
     input = input.view(-1, input.size(-1))
-    input.div_(sqrt(d))
     n, d = input.size()
+    input.div_(sqrt(d))
 
     output = input.new().resize_(n, (d // 2) + 1, 2)
     if input.is_cuda:
