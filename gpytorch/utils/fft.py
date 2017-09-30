@@ -1,5 +1,4 @@
 from .. import libfft
-from math import sqrt
 
 def fft1(input):
     # [..., d]
@@ -8,7 +7,6 @@ def fft1(input):
 
     input = input.view(-1, input.size(-1))
     n, d = input.size()
-    input.div_(sqrt(d))
 
     output = input.new().resize_(n, (d // 2) + 1, 2)
     if input.is_cuda:
@@ -41,7 +39,6 @@ def fft2(input):
         output_size = list(orig_size[:-2]) + [(n // 2) + 1, (d // 2) + 1, 2]
     else:
         output_size = [(n // 2) + 1, (d // 2) + 1, 2]
-    output.div_(sqrt(n*d))
     return output.view(*output_size).type(orig_type)
 
 def ifft1(input, size=None):
@@ -62,7 +59,7 @@ def ifft1(input, size=None):
     else:
         output = output.float()
         libfft.fft1_c2r(input.float(), output)
-    output.div_(sqrt(d))
+    output.div_(d)
     return output.view(size).type(orig_type)
 
 def ifft2(input, size=None):
@@ -85,5 +82,5 @@ def ifft2(input, size=None):
         libfft.fft2_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(sqrt(n*d))
+    output.div_(n*d)
     return output.view(size).type(orig_type)
