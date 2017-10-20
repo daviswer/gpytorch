@@ -70,6 +70,7 @@ def ifft2(input, size=None):
         size = list(input.size())[:-1]
         d = (size[-1] - 1) * 2
         size[-1] = d
+        n = size[-2]
     else:
         d = size[-1]
         n = size[-2]
