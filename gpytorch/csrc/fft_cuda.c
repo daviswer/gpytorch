@@ -151,7 +151,7 @@ int fft2_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
   // execute FFT
   cufftHandle plan;
   cufftPlanMany(&plan, 2, size, NULL, 1, 0, NULL, 1, 0, CUFFT_C2R, nPlanes);
-  cufftExecC2R(plan, (cufftReal*) input_data, (cufftComplex*) output_data);
+  cufftExecC2R(plan, (cufftComplex*) input_data, (cufftReal*) output_data);
   
   //clean up
   cufftDestroy(plan);
@@ -184,7 +184,7 @@ int fft3_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
   // execute FFT
   cufftHandle plan;
   cufftPlanMany(&plan, 3, size, NULL, 1, 0, NULL, 1, 0, CUFFT_C2R, nPlanes);
-  cufftExecC2R(plan, (cufftReal*) input_data, (cufftComplex*) output_data);
+  cufftExecC2R(plan, (cufftComplex*) input_data, (cufftReal*) output_data);
   
   //clean up
   cufftDestroy(plan);
@@ -215,7 +215,7 @@ int fft2_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
   // execute FFT
   cufftHandle plan;
   cufftPlanMany(&plan, 2, size, NULL, 1, 0, NULL, 1, 0, CUFFT_C2C, nPlanes);
-  cufftExecR2C(plan, (cufftReal*) input_data, (cufftComplex*) output_data, CUFFT_FORWARD);
+  cufftExecC2C(plan, (cufftComplex*) input_data, (cufftComplex*) output_data, CUFFT_FORWARD);
   
   //clean up
   cufftDestroy(plan);
@@ -246,7 +246,7 @@ int ifft2_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
   // execute FFT
   cufftHandle plan;
   cufftPlanMany(&plan, 2, size, NULL, 1, 0, NULL, 1, 0, CUFFT_C2C, nPlanes);
-  cufftExecR2C(plan, (cufftReal*) input_data, (cufftComplex*) output_data, CUFFT_INVERSE);
+  cufftExecC2C(plan, (cufftComplex*) input_data, (cufftComplex*) output_data, CUFFT_INVERSE);
   
   //clean up
   cufftDestroy(plan);
