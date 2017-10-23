@@ -69,9 +69,8 @@ def fft2_c(input):
     input = input.view(-1, input.size(-3), input.size(-2), 2)
     nPlanes, n, d, _ = input.size()
     
-    output = input.new()
-    if len(output.size()) < 4:
-        output = output.view(1,nPlanes,n,d)
+    if len(input
+    output = input.new().resize_(nPlanes,n,d,2)
     if input.is_cuda:
         libfft.fft2_c2c_cuda(input, output)
     else:
@@ -158,9 +157,7 @@ def ifft2_c(input):
     input = input.view(-1, input.size(-3), input.size(-2), 2)
     nPlanes, n, d, _ = input.size()
     
-    output = input.new()
-    if len(output.size()) < 4:
-        output = output.view(1,nPlanes,n,d)
+    output = input.new().resize_(nPlanes,n,d,2)
     if input.is_cuda:
         libfft.ifft2_c2c_cuda(input, output)
     else:
