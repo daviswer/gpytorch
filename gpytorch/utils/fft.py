@@ -70,6 +70,8 @@ def fft2_c(input):
     nPlanes, n, d, _ = input.size()
     
     output = input.new()
+    if len(output.size()) < 4:
+        output = output.unsqueeze(0)
     if input.is_cuda:
         libfft.fft2_c2c_cuda(input, output)
     else:
@@ -78,7 +80,7 @@ def fft2_c(input):
     if len(orig_size) > 2:
         output_size = list(orig_size[:-3]) + [n, d, 2]
     else:
-        output_size = [1, n, d, 2]
+        output_size = [n, d, 2]
     return output.view(*output_size).type(orig_type)
 
 def ifft1(input, size=None):
@@ -157,6 +159,8 @@ def ifft2_c(input):
     nPlanes, n, d, _ = input.size()
     
     output = input.new()
+    if len(output.size()) < 4:
+        output = output.unsqueeze(0)
     if input.is_cuda:
         libfft.ifft2_c2c_cuda(input, output)
     else:
@@ -165,5 +169,5 @@ def ifft2_c(input):
     if len(orig_size) > 2:
         output_size = list(orig_size[:-3]) + [n, d, 2]
     else:
-        output_size = [1, n, d, 2]
+        output_size = [n, d, 2]
     return output.view(*output_size).type(orig_type)
