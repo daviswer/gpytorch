@@ -166,4 +166,5 @@ def ifft2_c(input):
         output_size = list(orig_size[:-3]) + [n, d, 2]
     else:
         output_size = [n, d, 2]
+    output.div_(n*d)
     return output.view(*output_size).type(orig_type)
