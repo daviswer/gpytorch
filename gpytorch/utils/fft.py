@@ -20,7 +20,7 @@ def fft1(input):
         output_size = list(orig_size[:-1]) + [(d // 2) + 1, 2]
     else:
         output_size = [(d // 2) + 1, 2]
-    output.div_(sqrt(d))
+    #output.div_(sqrt(d))
     return output.view(*output_size).type(orig_type)
 
 def fft2(input):
