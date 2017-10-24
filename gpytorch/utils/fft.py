@@ -7,6 +7,7 @@ def fft1(input):
 
     input = input.view(-1, input.size(-1))
     n, d = input.size()
+    input.div_(sqrt(d))
 
     output = input.new().resize_(n, (d // 2) + 1, 2)
     if input.is_cuda:
@@ -28,6 +29,7 @@ def fft2(input):
     
     input = input.view(-1, input.size(-2), input.size(-1))
     nPlanes, n, d = input.size()
+    input.div_(sqrt(n*d))
     
     output = input.new().resize_(nPlanes, n, (d // 2) + 1, 2)
     if input.is_cuda:
@@ -48,6 +50,7 @@ def fft3(input):
     
     input = input.view(-1, input.size(-3), input.size(-2), input.size(-1))
     nPlanes, m, n, d = input.size()
+    input.div_(sqrt(m*n*d))
     
     output = input.new().resize_(nPlanes, m, n, (d // 2) + 1, 2)
     if input.is_cuda:
@@ -68,6 +71,7 @@ def fft2_c(input):
     
     input = input.view(-1, input.size(-3), input.size(-2), 2)
     nPlanes, n, d, _ = input.size()
+    input.div_(sqrt(n*d))
     
     output = input.new().resize_(nPlanes,n,d,2)
     if input.is_cuda:
@@ -99,7 +103,7 @@ def ifft1(input, size=None):
     else:
         output = output.float()
         libfft.fft1_c2r(input.float(), output)
-    output.div_(d)
+    output.div_(sqrt(d))
     return output.view(size).type(orig_type)
 
 def ifft2(input, size=None):
@@ -121,7 +125,7 @@ def ifft2(input, size=None):
         libfft.fft2_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(n*d)
+    output.div_(sqrt(n*d))
     return output.view(size).type(orig_type)
 
 def ifft3(input, size=None):
@@ -145,7 +149,7 @@ def ifft3(input, size=None):
         libfft.fft3_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(m*n*d)
+    output.div_(sqrt(m*n*d))
     return output.view(size).type(orig_type)
 
 def ifft2_c(input):
@@ -166,5 +170,5 @@ def ifft2_c(input):
         output_size = list(orig_size[:-3]) + [n, d, 2]
     else:
         output_size = [n, d, 2]
-    output.div_(n*d)
+    output.div_(sqrt(n*d))
     return output.view(*output_size).type(orig_type)
