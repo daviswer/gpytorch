@@ -104,7 +104,8 @@ def ifft1(input, size=None):
     else:
         output = output.float()
         libfft.fft1_c2r(input.float(), output)
-    output.div_(sqrt(d))
+    
+    #output.div_(sqrt(d))
     return output.view(size).type(orig_type)
 
 def ifft2(input, size=None):
