@@ -12,8 +12,7 @@ def fft1(input):
     if input.is_cuda:
         libfft.fft1_r2c_cuda(input, output)
     else:
-        output = output.float()
-        libfft.fft1_r2c(input.float(), output)
+        assert False
 
     if len(orig_size) > 1:
         output_size = list(orig_size[:-1]) + [(d // 2) + 1, 2]
@@ -97,8 +96,7 @@ def ifft1(input, size=None):
     if input.is_cuda:
         libfft.fft1_c2r_cuda(input, output)
     else:
-        output = output.float()
-        libfft.fft1_c2r(input.float(), output)
+        assert False
     output.div_(d)
     return output.view(size).type(orig_type)
 
