@@ -2,8 +2,8 @@ import os
 import torch
 from torch.utils.ffi import create_extension
 
-headers = ['gpytorch/csrc/fft.h']
-sources = ['gpytorch/csrc/fft.c']
+headers = []
+sources = []
 defines = []
 with_cuda = False
 libraries = []
