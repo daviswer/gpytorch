@@ -254,7 +254,10 @@ int ifft2_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
   return 0;
 }
 
-void ComplexPointwiseMulAndScale (cuComplex *a, cuComplex *b, int size) { 
+void ComplexPointwiseMulAndScale (cuComplex *input, cuComplex *output, int size) { 
+  // raw pointers
+  cuComplex *a = (cuComplex*) THCudaTensor_data(NULL, input);
+  cuComplex *b = (cuComplex*) THCudaTensor_data(NULL, output);
   const int numThreads = blockDim.x * gridDim.x; 
   const int threadID = blockIdx.x * blockDim.x + threadIdx.x; 
   float scale = 1.0f / (float)size; 
@@ -279,11 +282,8 @@ int cmul_cuda(THCudaTensor *input, THCudaTensor *output)
   THArgCheck(THCudaTensor_size(state, output, 0) == n, 2, "The first dimension of the output tensor should be n");
   THArgCheck(THCudaTensor_size(state, output, 1) == 2, 2, "The last dimension of the output tensor should be 2");
 
-  // raw pointers
-  cuComplex *input_data = (cuComplex*) THCudaTensor_data(NULL, input);
-  cuComplex *output_data = (cuComplex*) THCudaTensor_data(NULL, output);
 
-  ComplexPointwiseMulAndScale<<<32, 256>>>(input_data,output_data,n);
+  ComplexPointwiseMulAndScale<<<32, 256>>>(input,output,n);
   return 0;
 
 }
