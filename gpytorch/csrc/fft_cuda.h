@@ -8,6 +8,6 @@ int fft2_c2r_cuda(THCudaTensor *input, THCudaTensor *output);
 int fft3_c2r_cuda(THCudaTensor *input, THCudaTensor *output);
 int ifft2_c2c_cuda(THCudaTensor *input, THCudaTensor *output);
 
-__global__ void ComplexPointwiseMulAndScale (cufftComplex *a, cufftComplex *b, int size);
+void ComplexPointwiseMulAndScale (cufftComplex *a, cufftComplex *b, int size);
 
 int cmul_cuda(THCudaTensor *input, THCudaTensor *output);
