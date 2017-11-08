@@ -166,3 +166,20 @@ def ifft2_c(input):
         output_size = [n, d, 2]
     output.div_(n*d)
     return output.view(*output_size).type(orig_type)
+
+def cmul(input,output):
+    assert type(input)==type(output)
+    orig_size = input.size()
+    orig_type = type(input)
+    
+    input = input.view(-1,2)
+    output = output.view(-1,2)
+    
+    assert input.size(0)==output.size(0)
+    
+    if input.is_cuda:
+        libfft.cmul_cuda(input, output)
+    else:
+        assert False
+        
+    return output.view(*orig_size).type(orig_type)
