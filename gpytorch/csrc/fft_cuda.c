@@ -254,11 +254,11 @@ int ifft2_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
   return 0;
 }
 
-__global__ void ComplexPointwiseMulAndScale (cufftComplex *a, cufftComplex *b, int size) { 
+void ComplexPointwiseMulAndScale (cuComplex *a, cuComplex *b, int size) { 
   const int numThreads = blockDim.x * gridDim.x; 
   const int threadID = blockIdx.x * blockDim.x + threadIdx.x; 
   float scale = 1.0f / (float)size; 
-  cufftComplex c; 
+  cuComplex c; 
   for (int i = threadID; i < size; i += numThreads) { 
     c = cuCmulf(a[i], b[i]); 
     b[i] = make_cuFloatComplex(scale*cuCrealf(c), scale*cuCimagf(c)); 
