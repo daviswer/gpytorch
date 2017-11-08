@@ -253,3 +253,37 @@ int ifft2_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
   
   return 0;
 }
+
+__global__ void ComplexPointwiseMulAndScale (cufftComplex *a, cufftComplex *b, int size) { 
+  const int numThreads = blockDim.x * gridDim.x; 
+  const int threadID = blockIdx.x * blockDim.x + threadIdx.x; 
+  float scale = 1.0f / (float)size; 
+  cufftComplex c; 
+  for (int i = threadID; i < size; i += numThreads) { 
+    c = cuCmulf(a[i], b[i]); 
+    b[i] = make_cuFloatComplex(scale*cuCrealf(c), scale*cuCimagf(c)); 
+  } 
+  return; 
+}
+
+int cmul_cuda(THCudaTensor *input, THCudaTensor *output)
+{
+  // Get n - batch size
+  // Get d - number of dimensions
+  THArgCheck(THCudaTensor_nDimension(state, input) == 2,  2, "Input tensor must be 2 dimensional (n x 2)");
+  THArgCheck(THCudaTensor_isContiguous(state, input), 2, "Input tensor must be contiguous");
+  int n = (int) THCudaTensor_size(state, input, 0);
+
+  THArgCheck(THCudaTensor_nDimension(state, output) == 2, 2, "Output tensor must be 3 dimensional (n x 2)");
+  THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Output tensor must be contiguous");
+  THArgCheck(THCudaTensor_size(state, output, 0) == n, 2, "The first dimension of the output tensor should be n");
+  THArgCheck(THCudaTensor_size(state, output, 1) == 2, 2, "The last dimension of the output tensor should be 2");
+
+  // raw pointers
+  cuComplex *input_data = (cuComplex*) THCudaTensor_data(NULL, input);
+  cuComplex *output_data = (cuComplex*) THCudaTensor_data(NULL, output);
+
+  ComplexPointwiseMulAndScale<<<32, 256>>>(input_data,output_data,n);
+  return 0;
+
+}
