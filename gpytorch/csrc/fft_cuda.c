@@ -107,8 +107,6 @@ int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   int m = (int) THCudaTensor_size(state, input, 1);
   int n = (int) THCudaTensor_size(state, input, 2);
   int d = (int) THCudaTensor_size(state, input, 3);
-  int size[1] = ;
-  int inembed[1] = ;
   
   THArgCheck(THCudaTensor_nDimension(state, output) == 5, 2, "Output tensor must be 5 dimensional (nPlanes x m x n x d x 2)");
   THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Output tensor must be contiguous");
