@@ -60,6 +60,26 @@ def fft3(input):
         output_size = [m, n, (d // 2) + 1, 2]
     return output.view(*output_size).type(orig_type)
 
+def fftc(input):
+    # [..., m n d]
+    orig_size = input.size()
+    orig_type = type(input)
+    
+    input = input.view(-1, input.size(-3), input.size(-2), input.size(-1))
+    nPlanes, m, n, d = input.size()
+    
+    output = input.new().resize_(nPlanes, (m // 2) + 1, n, d, 2)
+    if input.is_cuda:
+        libfft.fft3_r2c_cuda(input, output)
+    else:
+        assert False
+    
+    if len(orig_size) > 3:
+        output_size = list(orig_size[:-3]) + [(m // 2) + 1, n, d, 2]
+    else:
+        output_size = [(m // 2) + 1, n, d, 2]
+    return output.view(*output_size).type(orig_type)
+
 def fft2_c(input):
     # [..., n d 2]
     orig_size = input.size()
