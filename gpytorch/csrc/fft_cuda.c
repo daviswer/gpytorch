@@ -98,6 +98,41 @@ int fft3_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   
   return 0;
 }
+
+int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
+{
+  THArgCheck(THCudaTensor_nDimension(state, input) == 4,  2, "Input tensor must be 3 dimensional (nPlanes x m x n x d)");
+  THArgCheck(THCudaTensor_isContiguous(state, input), 2, "Input tensor must be contiguous");
+  int nPlanes = (int) THCudaTensor_size(state, input, 0);
+  int m = (int) THCudaTensor_size(state, input, 1);
+  int n = (int) THCudaTensor_size(state, input, 2);
+  int d = (int) THCudaTensor_size(state, input, 3);
+  int nPlanes = (int) THCudaTensor_size(state, input, 0);
+  int size[1] = {m*n*d};
+  int inembed[1] = {nPlanes*n*d*m}
+  
+  THArgCheck(THCudaTensor_nDimension(state, output) == 5, 2, "Output tensor must be 5 dimensional (nPlanes x m x n x d x 2)");
+  THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Output tensor must be contiguous");
+  THArgCheck(THCudaTensor_size(state, output, 0) == nPlanes, 2, "The first dimension of the output tensor should be nPlanes");
+  THArgCheck(THCudaTensor_size(state, output, 1) == (m / 2) + 1, 2, "The second dimension of the output tensor should be (m/2 + 1)");
+    THArgCheck(THCudaTensor_size(state, output, 2) == n, 2, "The third dimension of the output tensor should be n");
+  THArgCheck(THCudaTensor_size(state, output, 3) == d, 2, "The fourth dimension of the output tensor should be d");
+  THArgCheck(THCudaTensor_size(state, output, 4) == 2, 2, "The last dimension of the output tensor should be 2");
+  
+  // raw pointers
+  float *input_data = THCudaTensor_data(NULL, input);
+  cuComplex *output_data = (cuComplex*) THCudaTensor_data(NULL, output);
+  
+  // execute FFT
+  cufftHandle plan;
+  cufftPlanMany(&plan, 1, size, inembed, n*d, 1, inembed, n*d, 1, CUFFT_R2C, nPlanes);
+  cufftExecR2C(plan, (cufftReal*) input_data, (cufftComplex*) output_data);
+  
+  //clean up
+  cufftDestroy(plan);
+  
+  return 0;
+}
   
 int fft1_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
 {
