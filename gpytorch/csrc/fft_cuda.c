@@ -126,7 +126,7 @@ int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   cufftHandle plan;
   cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_R2C, n*d);
   for (int k=0; k<nPlanes; k++){
-    cufftExecR2C(plan, (cufftReal*) input_data + k*m*n*d, (cufftComplex*) output_data);
+    cufftExecR2C(plan, (cufftReal*) input_data + k*m*n*d, (cufftComplex*) output_data + k*(m/2+1)*n*d);
   }
   
   //clean up
