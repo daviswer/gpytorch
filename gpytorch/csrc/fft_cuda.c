@@ -108,7 +108,7 @@ int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   int n = (int) THCudaTensor_size(state, input, 2);
   int d = (int) THCudaTensor_size(state, input, 3);
   int size[1] = {m};
-  int embed[1] = {m*n*d};
+  int embed[1] = {m*nPlanes};
   
   THArgCheck(THCudaTensor_nDimension(state, output) == 5, 2, "Output tensor must be 5 dimensional (nPlanes x m x n x d x 2)");
   THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Output tensor must be contiguous");
@@ -124,7 +124,7 @@ int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   
   // execute FFT
   cufftHandle plan;
-  cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_R2C, n*d);
+  cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_R2C, nPlanes*n*d);
   cufftExecR2C(plan, (cufftReal*) input_data, (cufftComplex*) output_data);
   
   //clean up
