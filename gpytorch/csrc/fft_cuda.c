@@ -236,7 +236,7 @@ int fftc_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
   int m = (int) THCudaTensor_size(state, output, 1);
   int n = (int) THCudaTensor_size(state, output, 2);
   int d = (int) THCudaTensor_size(state, output, 3);
-  int smallm = m/2+1
+  int smallm = m/2+1;
   int size[1] = {smallm};
   int embed[1] = {smallm*n*d};
   
