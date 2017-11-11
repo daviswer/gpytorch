@@ -237,7 +237,7 @@ int fftc_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
   int n = (int) THCudaTensor_size(state, output, 2);
   int d = (int) THCudaTensor_size(state, output, 3);
   int smallm = m/2+1;
-  int size[1] = {smallm};
+  int size[1] = {m};
   int embed[1] = {smallm*n*d};
   
   THArgCheck(THCudaTensor_nDimension(state, input) == 5, 2, "Output tensor must be 4 dimensional (nPlanes x m x n x d x 2)");
@@ -256,7 +256,7 @@ int fftc_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
   cufftHandle plan;
   cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_C2R, n*d);
   for (int k=0; k<nPlanes; k++){
-    cufftExecR2C(plan, (cufftComplex*) input_data + k*smallm*n*d, (cufftReal*) output_data + k*smallm*n*d);
+    cufftExecR2C(plan, (cufftComplex*) input_data + k*smallm*n*d, (cufftReal*) output_data);
   }
   
   //clean up
