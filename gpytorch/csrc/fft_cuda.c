@@ -80,7 +80,7 @@ int fft3_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Output tensor must be contiguous");
   THArgCheck(THCudaTensor_size(state, output, 0) == nPlanes, 2, "The first dimension of the output tensor should be nPlanes");
   THArgCheck(THCudaTensor_size(state, output, 1) == m, 2, "The second dimension of the output tensor should be m");
-    THArgCheck(THCudaTensor_size(state, output, 2) == n, 2, "The third dimension of the output tensor should be n");
+  THArgCheck(THCudaTensor_size(state, output, 2) == n, 2, "The third dimension of the output tensor should be n");
   THArgCheck(THCudaTensor_size(state, output, 3) == (d / 2) + 1, 2, "The fourth dimension of the output tensor should be (d/2 + 1)");
   THArgCheck(THCudaTensor_size(state, output, 4) == 2, 2, "The last dimension of the output tensor should be 2");
   
@@ -114,7 +114,7 @@ int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Output tensor must be contiguous");
   THArgCheck(THCudaTensor_size(state, output, 0) == nPlanes, 2, "The first dimension of the output tensor should be nPlanes");
   THArgCheck(THCudaTensor_size(state, output, 1) == (m / 2) + 1, 2, "The second dimension of the output tensor should be (m/2 + 1)");
-    THArgCheck(THCudaTensor_size(state, output, 2) == n, 2, "The third dimension of the output tensor should be n");
+  THArgCheck(THCudaTensor_size(state, output, 2) == n, 2, "The third dimension of the output tensor should be n");
   THArgCheck(THCudaTensor_size(state, output, 3) == d, 2, "The fourth dimension of the output tensor should be d");
   THArgCheck(THCudaTensor_size(state, output, 4) == 2, 2, "The last dimension of the output tensor should be 2");
   
@@ -124,7 +124,7 @@ int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   
   // execute FFT
   cufftHandle plan;
-  cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_R2C, nPlanes);
+  cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_R2C, nPlanes*n*d);
   cufftExecR2C(plan, (cufftReal*) input_data, (cufftComplex*) output_data);
   
   //clean up
