@@ -70,7 +70,7 @@ def fftc(input):
     
     output = input.new().resize_(nPlanes, (m // 2) + 1, n, d, 2)
     if input.is_cuda:
-        libfft.fft3_r2c_cuda(input, output)
+        libfft.fftc_r2c_cuda(input, output)
     else:
         assert False
     
