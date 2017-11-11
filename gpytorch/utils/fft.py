@@ -166,6 +166,30 @@ def ifft3(input, size=None):
     output.div_(m*n*d)
     return output.view(size).type(orig_type)
 
+def ifftc(input, size=None):
+    # [..., m, n, d, 2]
+    orig_type = type(input)
+
+    if not size:
+        size = list(input.size())[:-1]
+        d = size[-1]
+        n = size[-2]
+        m = (size[-3] - 1) * 2
+        size[-3] = m
+    else:
+        d = size[-1]
+        n = size[-2]
+        m = size[-3]
+    input = input.view(-1, *input.size()[-4:])
+
+    output = input.new().resize_(input.size(0), m, n, d)
+    if input.is_cuda:
+        libfft.fftc_c2r_cuda(input, output)
+    else:
+        assert False
+    output.div_(m*n*d)
+    return output.view(size).type(orig_type)
+
 def ifft2_c(input):
     # [..., n d 2]
     orig_size = input.size()
