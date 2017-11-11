@@ -187,7 +187,7 @@ def ifftc(input, size=None):
         libfft.fftc_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(m*n*d)
+    output.div_(m)
     return output.view(size).type(orig_type)
 
 def ifft2_c(input):
