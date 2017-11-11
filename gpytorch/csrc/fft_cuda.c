@@ -228,7 +228,7 @@ int fft3_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
   return 0;
 }
 
-int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
+int fftc_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
 {
   THArgCheck(THCudaTensor_nDimension(state, output) == 4,  2, "Input tensor must be 3 dimensional (nPlanes x m x n x d)");
   THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Input tensor must be contiguous");
