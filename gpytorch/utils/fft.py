@@ -19,7 +19,8 @@ def fft1(input):
         output_size = list(orig_size[:-1]) + [(d // 2) + 1, 2]
     else:
         output_size = [(d // 2) + 1, 2]
-    output.div_(math.sqrt(d))
+#     output.div_(math.sqrt(d))
+    output.div_(d)
     return output.view(*output_size).type(orig_type)
 
 def fft2(input):
@@ -123,7 +124,7 @@ def ifft1(input, size=None):
         libfft.fft1_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(math.sqrt(d))
+#     output.div_(math.sqrt(d))
     return output.view(size).type(orig_type)
 
 def ifft2(input, size=None):
@@ -216,20 +217,3 @@ def ifft2_c(input):
         output_size = [n, d, 2]
     output.div_(math.sqrt(n*d))
     return output.view(*output_size).type(orig_type)
-
-def cmul(input,output):
-    assert type(input)==type(output)
-    orig_size = input.size()
-    orig_type = type(input)
-    
-    input = input.view(-1,2)
-    output = output.view(-1,2)
-    
-    assert input.size(0)==output.size(0)
-    
-    if input.is_cuda:
-        libfft.cmul_cuda(input, output)
-    else:
-        assert False
-        
-    return output.view(*orig_size).type(orig_type)
