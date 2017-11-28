@@ -8,10 +8,11 @@ def fft1(input):
 
     input = input.view(-1, input.size(-1))
     n, d = input.size()
+    input = input/math.sqrt(d)
 
     output = input.new().resize_(n, (d // 2) + 1, 2)
     if input.is_cuda:
-        libfft.fft1_r2c_cuda(input/math.sqrt(d), output)
+        libfft.fft1_r2c_cuda(input, output)
     else:
         assert False
 
