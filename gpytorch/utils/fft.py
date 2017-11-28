@@ -19,8 +19,6 @@ def fft1(input):
         output_size = list(orig_size[:-1]) + [(d // 2) + 1, 2]
     else:
         output_size = [(d // 2) + 1, 2]
-#     output.div_(math.sqrt(d))
-    output.div_(d)
     return output.view(*output_size).type(orig_type)
 
 def fft2(input):
@@ -41,7 +39,6 @@ def fft2(input):
         output_size = list(orig_size[:-2]) + [n, (d // 2) + 1, 2]
     else:
         output_size = [n, (d // 2) + 1, 2]
-    output.div_(math.sqrt(n*d))
     return output.view(*output_size).type(orig_type)
 
 def fft3(input):
@@ -62,7 +59,6 @@ def fft3(input):
         output_size = list(orig_size[:-3]) + [m, n, (d // 2) + 1, 2]
     else:
         output_size = [m, n, (d // 2) + 1, 2]
-    output.div_(math.sqrt(m*n*d))
     return output.view(*output_size).type(orig_type)
 
 def fftc(input):
@@ -83,7 +79,6 @@ def fftc(input):
         output_size = list(orig_size[:-3]) + [(m // 2) + 1, n, d, 2]
     else:
         output_size = [(m // 2) + 1, n, d, 2]
-    output.div_(math.sqrt(m))
     return output.view(*output_size).type(orig_type)
 
 def fft2_c(input):
@@ -104,7 +99,6 @@ def fft2_c(input):
         output_size = list(orig_size[:-3]) + [n, d, 2]
     else:
         output_size = [n, d, 2]
-    output.div_(math.sqrt(n*d))
     return output.view(*output_size).type(orig_type)
 
 def ifft1(input, size=None):
@@ -124,7 +118,7 @@ def ifft1(input, size=None):
         libfft.fft1_c2r_cuda(input, output)
     else:
         assert False
-#     output.div_(math.sqrt(d))
+    output.div_(d)
     return output.view(size).type(orig_type)
 
 def ifft2(input, size=None):
@@ -146,7 +140,7 @@ def ifft2(input, size=None):
         libfft.fft2_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(math.sqrt(n*d))
+    output.div_(n*d)
     return output.view(size).type(orig_type)
 
 def ifft3(input, size=None):
@@ -170,7 +164,7 @@ def ifft3(input, size=None):
         libfft.fft3_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(math.sqrt(m*n*d))
+    output.div_(m*n*d)
     return output.view(size).type(orig_type)
 
 def ifftc(input, size=None):
@@ -194,7 +188,7 @@ def ifftc(input, size=None):
         libfft.fftc_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(math.sqrt(m))
+    output.div_(m)
     return output.view(size).type(orig_type)
 
 def ifft2_c(input):
@@ -215,5 +209,5 @@ def ifft2_c(input):
         output_size = list(orig_size[:-3]) + [n, d, 2]
     else:
         output_size = [n, d, 2]
-    output.div_(math.sqrt(n*d))
+    output.div_(n*d)
     return output.view(*output_size).type(orig_type)
