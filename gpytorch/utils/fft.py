@@ -117,7 +117,7 @@ def ifft1(input, size=None):
         libfft.fft1_c2r_cuda(input, output)
     else:
         assert False
-    output.div_(d)
+#     output.div_(d)
     return output.view(size).type(orig_type)
 
 def ifft2(input, size=None):
