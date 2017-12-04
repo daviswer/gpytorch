@@ -66,7 +66,7 @@ def fftc(input):
     orig_size = input.size()
     orig_type = type(input)
     
-    input = input.view(-1, input.size(-3), input.size(-2), input.size(-1), 2)
+    input = input.view(-1, input.size(-4), input.size(-3), input.size(-2), 2)
     nPlanes, m, n, d, _ = input.size()
     
     output = input.new().resize_(nPlanes, m, n, d, 2)
@@ -75,8 +75,8 @@ def fftc(input):
     else:
         assert False
     
-    if len(orig_size) > 3:
-        output_size = list(orig_size[:-3]) + [m, n, d, 2]
+    if len(orig_size) > 4:
+        output_size = list(orig_size[:-4]) + [m, n, d, 2]
     else:
         output_size = [m, n, d, 2]
     return output.view(*output_size).type(orig_type)
