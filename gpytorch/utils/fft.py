@@ -169,6 +169,7 @@ def ifft3(input, size=None):
 
 def ifftc(input):
     # [..., m, n, d, 2]
+    orig_size = input.size()
     orig_type = type(input)
 
     input = input.view(-1, *input.size()[-4:])
@@ -180,7 +181,7 @@ def ifftc(input):
     else:
         assert False
     output.div_(m)
-    return output.view(size).type(orig_type)
+    return output.view(*orig_size).type(orig_type)
 
 def ifft2_c(input):
     # [..., n d 2]
