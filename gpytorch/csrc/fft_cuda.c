@@ -222,7 +222,7 @@ int fftc_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
   cufftHandle plan;
   cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_C2C, n*d);
   for (int k=0; k<nPlanes; k++){
-    cufftExecC2C(plan, (cufftReal*) input_data + k*m*n*d, (cufftComplex*) output_data + k*m*n*d, CUFFT_FORWARD);
+    cufftExecC2C(plan, (cufftComplex*) input_data + k*m*n*d, (cufftComplex*) output_data + k*m*n*d, CUFFT_FORWARD);
   }
   
   //clean up
@@ -289,7 +289,7 @@ int ifftc_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
   cufftHandle plan;
   cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_C2C, n*d);
   for (int k=0; k<nPlanes; k++){
-    cufftExecC2C(plan, (cufftComplex*) input_data + k*m*n*d, (cufftReal*) output_data + k*m*n*d, CUFFT_INVERSE);
+    cufftExecC2C(plan, (cufftComplex*) input_data + k*m*n*d, (cufftComplex*) output_data + k*m*n*d, CUFFT_INVERSE);
   }
   
   //clean up
