@@ -169,10 +169,10 @@ def ifft3(input, size=None):
 
 def ifftc(input):
     # [..., m, n, d, 2]
-    orig_size = input.size()
     orig_type = type(input)
 
     input = input.view(-1, *input.size()[-4:])
+    _, m, n, d, _ = input.size()
 
     output = input.new().resize_(input.size(0), m, n, d, 2)
     if input.is_cuda:
