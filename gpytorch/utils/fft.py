@@ -69,16 +69,16 @@ def fftc(input):
     input = input.view(-1, input.size(-3), input.size(-2), input.size(-1))
     nPlanes, m, n, d = input.size()
     
-    output = input.new().resize_(nPlanes, (m // 2) + 1, n, d, 2)
+    output = input.new().resize_(nPlanes, m, n, d, 2)
     if input.is_cuda:
         libfft.fftc_c2c_cuda(input, output)
     else:
         assert False
     
     if len(orig_size) > 3:
-        output_size = list(orig_size[:-3]) + [(m // 2) + 1, n, d, 2]
+        output_size = list(orig_size[:-3]) + [m, n, d, 2]
     else:
-        output_size = [(m // 2) + 1, n, d, 2]
+        output_size = [m, n, d, 2]
     return output.view(*output_size).type(orig_type)
 
 def fft2_c(input):
@@ -175,8 +175,7 @@ def ifftc(input, size=None):
         size = list(input.size())[:-1]
         d = size[-1]
         n = size[-2]
-        m = (size[-3] - 1) * 2
-        size[-3] = m
+        m = size[-3]
     else:
         d = size[-1]
         n = size[-2]
