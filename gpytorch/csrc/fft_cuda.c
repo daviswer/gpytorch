@@ -98,42 +98,6 @@ int fft3_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
   
   return 0;
 }
-
-int fftc_r2c_cuda(THCudaTensor *input, THCudaTensor *output)
-{
-  THArgCheck(THCudaTensor_nDimension(state, input) == 4,  2, "Input tensor must be 3 dimensional (nPlanes x m x n x d)");
-  THArgCheck(THCudaTensor_isContiguous(state, input), 2, "Input tensor must be contiguous");
-  int nPlanes = (int) THCudaTensor_size(state, input, 0);
-  int m = (int) THCudaTensor_size(state, input, 1);
-  int n = (int) THCudaTensor_size(state, input, 2);
-  int d = (int) THCudaTensor_size(state, input, 3);
-  int size[1] = {m};
-  int embed[1] = {m*n*d};
-  
-  THArgCheck(THCudaTensor_nDimension(state, output) == 5, 2, "Output tensor must be 5 dimensional (nPlanes x m x n x d x 2)");
-  THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Output tensor must be contiguous");
-  THArgCheck(THCudaTensor_size(state, output, 0) == nPlanes, 2, "The first dimension of the output tensor should be nPlanes");
-  THArgCheck(THCudaTensor_size(state, output, 1) == (m / 2) + 1, 2, "The second dimension of the output tensor should be (m/2 + 1)");
-  THArgCheck(THCudaTensor_size(state, output, 2) == n, 2, "The third dimension of the output tensor should be n");
-  THArgCheck(THCudaTensor_size(state, output, 3) == d, 2, "The fourth dimension of the output tensor should be d");
-  THArgCheck(THCudaTensor_size(state, output, 4) == 2, 2, "The last dimension of the output tensor should be 2");
-  
-  // raw pointers
-  float *input_data = THCudaTensor_data(NULL, input);
-  cuComplex *output_data = (cuComplex*) THCudaTensor_data(NULL, output);
-  
-  // execute FFT
-  cufftHandle plan;
-  cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_R2C, n*d);
-  for (int k=0; k<nPlanes; k++){
-    cufftExecR2C(plan, (cufftReal*) input_data + k*m*n*d, (cufftComplex*) output_data + k*(m/2+1)*n*d);
-  }
-  
-  //clean up
-  cufftDestroy(plan);
-  
-  return 0;
-}
   
 int fft1_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
 {
@@ -228,35 +192,37 @@ int fft3_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
   return 0;
 }
 
-int fftc_c2r_cuda(THCudaTensor *input, THCudaTensor *output)
+//------------------------------------------------------------------------------------------------------------
+
+
+int fftc_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
 {
-  THArgCheck(THCudaTensor_nDimension(state, output) == 4,  2, "Input tensor must be 3 dimensional (nPlanes x m x n x d)");
-  THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Input tensor must be contiguous");
-  int nPlanes = (int) THCudaTensor_size(state, output, 0);
-  int m = (int) THCudaTensor_size(state, output, 1);
-  int n = (int) THCudaTensor_size(state, output, 2);
-  int d = (int) THCudaTensor_size(state, output, 3);
-  int smallm = m/2+1;
+  THArgCheck(THCudaTensor_nDimension(state, input) == 5,  2, "Input tensor must be 4 dimensional (nPlanes x m x n x d x 2)");
+  THArgCheck(THCudaTensor_isContiguous(state, input), 2, "Input tensor must be contiguous");
+  int nPlanes = (int) THCudaTensor_size(state, input, 0);
+  int m = (int) THCudaTensor_size(state, input, 1);
+  int n = (int) THCudaTensor_size(state, input, 2);
+  int d = (int) THCudaTensor_size(state, input, 3);
   int size[1] = {m};
   int embed[1] = {m*n*d};
   
-  THArgCheck(THCudaTensor_nDimension(state, input) == 5, 2, "Output tensor must be 4 dimensional (nPlanes x m x n x d x 2)");
-  THArgCheck(THCudaTensor_isContiguous(state, input), 2, "Output tensor must be contiguous");
-  THArgCheck(THCudaTensor_size(state, input, 0) == nPlanes, 2, "The first dimension of the output tensor should be nPlanes");
-  THArgCheck(THCudaTensor_size(state, input, 1) == smallm, 2, "The second dimension of the output tensor should be (m/2)+1");
-  THArgCheck(THCudaTensor_size(state, input, 2) == n, 2, "The third dimension of the output tensor should be n");
-  THArgCheck(THCudaTensor_size(state, input, 3) == d, 2, "The fourth dimension of the output tensor should be d");
-  THArgCheck(THCudaTensor_size(state, input, 4) == 2, 2, "The last dimension of the output tensor should be 2");
+  THArgCheck(THCudaTensor_nDimension(state, output) == 5, 2, "Output tensor must be 5 dimensional (nPlanes x m x n x d x 2)");
+  THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Output tensor must be contiguous");
+  THArgCheck(THCudaTensor_size(state, output, 0) == nPlanes, 2, "The first dimension of the output tensor should be nPlanes");
+  THArgCheck(THCudaTensor_size(state, output, 1) == m, 2, "The second dimension of the output tensor should be m");
+  THArgCheck(THCudaTensor_size(state, output, 2) == n, 2, "The third dimension of the output tensor should be n");
+  THArgCheck(THCudaTensor_size(state, output, 3) == d, 2, "The fourth dimension of the output tensor should be d");
+  THArgCheck(THCudaTensor_size(state, output, 4) == 2, 2, "The last dimension of the output tensor should be 2");
   
   // raw pointers
-  float *output_data = THCudaTensor_data(NULL, output);
-  cuComplex *input_data = (cuComplex*) THCudaTensor_data(NULL, input);
+  float *input_data = THCudaTensor_data(NULL, input);
+  cuComplex *output_data = (cuComplex*) THCudaTensor_data(NULL, output);
   
   // execute FFT
   cufftHandle plan;
-  cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_C2R, n*d);
+  cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_C2C, n*d);
   for (int k=0; k<nPlanes; k++){
-    cufftExecC2R(plan, (cufftComplex*) input_data + k*smallm*n*d, (cufftReal*) output_data + k*m*n*d);
+    cufftExecC2C(plan, (cufftReal*) input_data + k*m*n*d, (cufftComplex*) output_data + k*m*n*d, CUFFT_FORWARD);
   }
   
   //clean up
@@ -289,6 +255,42 @@ int fft2_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
   cufftHandle plan;
   cufftPlanMany(&plan, 2, size, NULL, 1, 0, NULL, 1, 0, CUFFT_C2C, nPlanes);
   cufftExecC2C(plan, (cufftComplex*) input_data, (cufftComplex*) output_data, CUFFT_FORWARD);
+  
+  //clean up
+  cufftDestroy(plan);
+  
+  return 0;
+}
+
+int ifftc_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
+{
+  THArgCheck(THCudaTensor_nDimension(state, output) == 4,  2, "Input tensor must be 3 dimensional (nPlanes x m x n x d)");
+  THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Input tensor must be contiguous");
+  int nPlanes = (int) THCudaTensor_size(state, output, 0);
+  int m = (int) THCudaTensor_size(state, output, 1);
+  int n = (int) THCudaTensor_size(state, output, 2);
+  int d = (int) THCudaTensor_size(state, output, 3);
+  int size[1] = {m};
+  int embed[1] = {m*n*d};
+  
+  THArgCheck(THCudaTensor_nDimension(state, input) == 5, 2, "Output tensor must be 4 dimensional (nPlanes x m x n x d x 2)");
+  THArgCheck(THCudaTensor_isContiguous(state, input), 2, "Output tensor must be contiguous");
+  THArgCheck(THCudaTensor_size(state, input, 0) == nPlanes, 2, "The first dimension of the output tensor should be nPlanes");
+  THArgCheck(THCudaTensor_size(state, input, 1) == m, 2, "The second dimension of the output tensor should be (m/2)+1");
+  THArgCheck(THCudaTensor_size(state, input, 2) == n, 2, "The third dimension of the output tensor should be n");
+  THArgCheck(THCudaTensor_size(state, input, 3) == d, 2, "The fourth dimension of the output tensor should be d");
+  THArgCheck(THCudaTensor_size(state, input, 4) == 2, 2, "The last dimension of the output tensor should be 2");
+  
+  // raw pointers
+  float *output_data = THCudaTensor_data(NULL, output);
+  cuComplex *input_data = (cuComplex*) THCudaTensor_data(NULL, input);
+  
+  // execute FFT
+  cufftHandle plan;
+  cufftPlanMany(&plan, 1, size, embed, n*d, 1, embed, n*d, 1, CUFFT_C2C, n*d);
+  for (int k=0; k<nPlanes; k++){
+    cufftExecC2R(plan, (cufftComplex*) input_data + k*m*n*d, (cufftReal*) output_data + k*m*n*d, CUFFT_INVERSE);
+  }
   
   //clean up
   cufftDestroy(plan);
