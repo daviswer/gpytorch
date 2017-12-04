@@ -71,7 +71,7 @@ def fftc(input):
     
     output = input.new().resize_(nPlanes, (m // 2) + 1, n, d, 2)
     if input.is_cuda:
-        libfft.fftc_r2c_cuda(input, output)
+        libfft.fftc_c2c_cuda(input, output)
     else:
         assert False
     
@@ -185,7 +185,7 @@ def ifftc(input, size=None):
 
     output = input.new().resize_(input.size(0), m, n, d)
     if input.is_cuda:
-        libfft.fftc_c2r_cuda(input, output)
+        libfft.ifftc_c2c_cuda(input, output)
     else:
         assert False
     output.div_(m)
