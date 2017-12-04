@@ -264,7 +264,7 @@ int fft2_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
 
 int ifftc_c2c_cuda(THCudaTensor *input, THCudaTensor *output)
 {
-  THArgCheck(THCudaTensor_nDimension(state, output) == 4,  2, "Input tensor must be 3 dimensional (nPlanes x m x n x d)");
+  THArgCheck(THCudaTensor_nDimension(state, output) == 5,  2, "Input tensor must be 4 dimensional (nPlanes x m x n x d x 2)");
   THArgCheck(THCudaTensor_isContiguous(state, output), 2, "Input tensor must be contiguous");
   int nPlanes = (int) THCudaTensor_size(state, output, 0);
   int m = (int) THCudaTensor_size(state, output, 1);
